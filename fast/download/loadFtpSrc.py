@@ -12,7 +12,7 @@ if getattr(sys, 'frozen', False):
     dirname = os.path.dirname(sys.executable)
 else:
     dirname = os.path.dirname(os.path.abspath(__file__))
-    dirname = os.path.join(dirname, '..')
+    # dirname = os.path.join(dirname, '..')
 
 ftpsJson = os.path.join(dirname, 'bin', 'fast_download_src.json')
 if not os.path.isfile(ftpsJson):

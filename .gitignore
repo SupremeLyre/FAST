@@ -26,7 +26,16 @@ fast/*.spec
 fast/win_bin
 manual/FAST_manual-V3.00.docx
 fast/dist
-fast/bin
+/fast/bin/crx2rnx*
+/fast/bin/cyg*
+/fast/bin/gfzrnx*
+/fast/bin/gzip*
+/fast/bin/lftp*
+/fast/bin/tar*
+/fast/bin/teqc*
+/fast/bin/uncompress*
+/fast/bin/unzip*
+/fast/bin/wget*
 FAST_M.html
 FAST_M2.html
 AGENTS.md

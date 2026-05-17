@@ -14,7 +14,7 @@
 <h1>File Download and Signal Processing Toolkit for GNSS</h1>
 
 <p>
-  <a href="https://github.com/ChangChuntao/FAST/releases/tag/v3.01.0">
+  <a href="https://github.com/SupremeLyre/FAST/releases/tag/v3.01.0">
     <img src="https://img.shields.io/badge/Release-v3.01.00-2ea44f?style=flat-square&logo=github" alt="Release">
   </a>
   <a href="https://www.python.org/downloads/">
@@ -60,44 +60,6 @@
 
 ## 🚀 Quick Start
 
-### 📥 Download Pre-built Binaries
-
-<div align="center">
-
-<table>
-<thead>
-<tr>
-<th>Platform</th>
-<th>GUI Version 📦</th>
-<th>CLI Version 🖥️</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><b> Windows</b></td>
-<td><a href="https://github.com/ChangChuntao/FAST/releases/download/v3.01.0/FastQt_Win.zip">FastQt_Win.zip</a></td>
-<td><a href="https://github.com/ChangChuntao/FAST/releases/download/v3.01.0/FAST_Win.zip">FAST_Win.zip</a></td>
-</tr>
-<tr>
-<td><b> macOS (Intel)</b></td>
-<td><a href="https://github.com/ChangChuntao/FAST/releases/download/v3.01.0/FastQt_Mac.zip">FastQt_Mac.zip</a></td>
-<td><a href="https://github.com/ChangChuntao/FAST/releases/download/v3.01.0/FAST_Mac.zip">FAST_Mac.zip</a></td>
-</tr>
-<tr>
-<td><b> Ubuntu</b></td>
-<td>—</td>
-<td><a href="https://github.com/ChangChuntao/FAST/releases/download/v3.01.0/FAST_Ubuntu.zip">FAST_Ubuntu.zip</a></td>
-</tr>
-<tr>
-<td><b> CentOS</b></td>
-<td>—</td>
-<td><a href="https://github.com/ChangChuntao/FAST/releases/download/v3.01.0/FAST_CentOS.zip">FAST_CentOS.zip</a></td>
-</tr>
-</tbody>
-</table>
-
-</div>
-
 ### 🐍 Run from Source
 
 <details>
@@ -105,7 +67,7 @@
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/ChangChuntao/FAST.git && cd FAST
+git clone https://github.com/SupremeLyre/FAST.git && cd FAST
 
 # 2. Setup environment
 python -m venv venv
@@ -123,7 +85,7 @@ python fast/_fastQt.py    # GUI
 
 ```batch
 :: 1. Clone repository
-git clone https://github.com/ChangChuntao/FAST.git && cd FAST
+git clone https://github.com/SupremeLyre/FAST.git && cd FAST
 
 :: 2. Setup environment
 python -m venv venv
@@ -303,7 +265,7 @@ rms()           # Root mean square
 ## 📖 Documentation
 
 - 📄 [Complete Manual](./manual/FAST_manual-V3.00.pdf)
-- 🐛 [Issue Tracker](https://github.com/ChangChuntao/FAST/issues)
+- 🐛 [Issue Tracker](https://github.com/SupremeLyre/FAST/issues)
 
 ---
 
@@ -322,13 +284,12 @@ GNSS Research Center, Wuhan University
 <div align="center">
 
 <p>
-  <a href="https://github.com/ChangChuntao/FAST">🐙 GitHub</a> •
-  <a href="https://gitee.com/changchuntao/FAST">🔗 Gitee</a>
+  <a href="https://github.com/SupremeLyre/FAST">🐙 GitHub</a> •
 </p>
 
 <p>
-  <img src="https://img.shields.io/github/stars/ChangChuntao/FAST?style=social" alt="Stars">
-  <img src="https://img.shields.io/github/forks/ChangChuntao/FAST?style=social" alt="Forks">
+  <img src="https://img.shields.io/github/stars/SupremeLyre/FAST?style=social" alt="Stars">
+  <img src="https://img.shields.io/github/forks/SupremeLyre/FAST?style=social" alt="Forks">
 </p>
 
 <br>
