@@ -200,7 +200,7 @@ def init_site_ui(main_win, font, chinese, lable_h, normalBtnH):
     siteAllLayout.addWidget(siteDown)
     siteAllLayout.setStretchFactor(3, 1)
 
-    siteLayout = QHBoxLayout(main_win)
+    siteLayout = QHBoxLayout()
     siteLayout.addWidget(siteAllLayout)
     
     return siteLayout

@@ -11,7 +11,7 @@
 2022-09-16 : MGEX_HK_cors长短名索引表         by Chang Chuntao -> Version : 1.21
 """
 
-from fast.com.mgexSite import readMegxSiteInf
+from fast.com.mgexSite import findIgsNetworkCsv, readMegxSiteInf
 import os, sys
 
 def replaceSiteStr(ftpInList, siteInList):
@@ -54,11 +54,7 @@ else:
 
 
 # get mgex inf
-igsFileCsv = os.path.join(dirname, 'win_bin', 'bin', 'IGSNetwork.csv')
-if not os.path.isfile(igsFileCsv):
-    igsFileCsv = os.path.join(dirname, 'bin', 'IGSNetwork.csv')
-if not os.path.isfile(igsFileCsv):
-    igsFileCsv = os.path.join(dirname, 'mac_bin', 'IGSNetwork.csv')
+igsFileCsv = findIgsNetworkCsv(dirname)
 megxSiteList = readMegxSiteInf(igsFileCsv)
 
 mgex = []

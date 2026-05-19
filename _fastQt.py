@@ -15,14 +15,12 @@ from PyQt5.QtWidgets import QMainWindow, QHBoxLayout, QApplication, QSplashScree
 from fast.qt.qtFrame import FramelessWindow, getSetting
 from fast.com.pub import lastVersion, lastVersionTime
 import qdarkstyle
-import pkg_resources
 
 if getattr(sys, 'frozen', False):
     dirname = os.path.dirname(sys.executable)
 else:
     dirname = os.path.dirname(os.path.abspath(__file__))
 
-style_path = pkg_resources.resource_filename(__name__, 'qb-common.mplstyle')
 if os.path.isdir(os.path.join(dirname, 'win_bin')):
     binDir = os.path.join(dirname, 'win_bin')
 else:
@@ -113,7 +111,7 @@ class mainWindow(QMainWindow):
         splitterAll.addWidget(splitterLeft)
         splitterAll.addWidget(splitterRight)
         splitterAll.setSizes([10, 80])
-        downloadLayout = QHBoxLayout(self)
+        downloadLayout = QHBoxLayout()
         downloadLayout.addWidget(splitterAll)
 
         # QC模块
@@ -143,19 +141,29 @@ def fastAppMain():
     splash.show()
     fastApp.setStyleSheet(qdarkstyle.load_stylesheet())
 
-    framelessWnd = FramelessWindow()
     whu_ico = os.path.join(binDir, 'black_c.ico')
-    framelessWnd.setWindowIcon(QtGui.QIcon(whu_ico))
-    framelessWnd.setWindowTitle('FAST V' + lastVersion)
-
     settingFile = os.path.join(binDir, 'setting')
     fastQtSetting = getSetting(settingFile)
     win = mainWindow(fastQtSetting)
-    framelessWnd.setContent(win)
-    splash.close()
-    framelessWnd.show()
+
+    if sys.platform.startswith('linux'):
+        win.setWindowIcon(QtGui.QIcon(whu_ico))
+        win.setWindowTitle('FAST V' + lastVersion)
+        splash.close()
+        win.show()
+    else:
+        framelessWnd = FramelessWindow()
+        framelessWnd.setWindowIcon(QtGui.QIcon(whu_ico))
+        framelessWnd.setWindowTitle('FAST V' + lastVersion)
+        framelessWnd.setContent(win)
+        splash.close()
+        framelessWnd.show()
     sys.exit(fastApp.exec())
 
 
 if __name__ == '__main__':
-    fastAppMain()
+    if len(sys.argv) > 1:
+        from _fast import fast
+        fast()
+    else:
+        fastAppMain()

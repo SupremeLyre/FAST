@@ -302,7 +302,7 @@ def init_qc_ui(main_win, font, chinese, choose_h, screenWidth, screenHeight):
     qcAllLayout.addWidget(qcRight)
     qcAllLayout.setStretchFactor(1, 3)
 
-    qcLayout = QHBoxLayout(main_win)
+    qcLayout = QHBoxLayout()
     qcLayout.addWidget(qcAllLayout)
     
     return qcLayout

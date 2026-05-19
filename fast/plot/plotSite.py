@@ -31,14 +31,9 @@ def plotSite(**kwargs):
     import sys
     import os
     if 'self' in kwargs:
-        from fast.com.mgexSite import readMegxSiteInf
+        from fast.com.mgexSite import findIgsNetworkCsv, readMegxSiteInf
         self = kwargs['self']
-        igsFileCsv = os.path.join(self.exeDirName, 'win_bin', 'bin', 'IGSNetwork.csv')
-        if not os.path.isfile(igsFileCsv):
-            igsFileCsv = os.path.join(self.exeDirName, 'bin', 'IGSNetwork.csv')
-        if not os.path.isfile(igsFileCsv):
-            igsFileCsv = os.path.join(self.exeDirName, 'mac_bin', 'bin', 'IGSNetwork.csv')
-        mgexSiteInfo = readMegxSiteInf(igsFileCsv)
+        mgexSiteInfo = readMegxSiteInf(findIgsNetworkCsv(self.exeDirName))
     if 'siteName' in kwargs:
         isPlotSiteNameStr = kwargs['siteName']
     else:

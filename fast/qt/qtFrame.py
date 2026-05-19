@@ -114,6 +114,15 @@ class FramelessWindow(QWidget):
         titleBarHeight = 35 + 10 
         btnSize = 32 + 15
         iconSize = 25 + 15
+        titleBtnIconSize = QSize(18, 18)
+
+        def set_title_button_icon(button, icon_path, fallback_icon, tooltip):
+            icon = QIcon(icon_path)
+            if icon.isNull():
+                icon = self.style().standardIcon(fallback_icon)
+            button.setIcon(icon)
+            button.setIconSize(titleBtnIconSize)
+            button.setToolTip(tooltip)
 
         # 关闭按钮
         # self.resize(800, 600)
@@ -121,28 +130,28 @@ class FramelessWindow(QWidget):
         self.btnClose.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.btnClose.setFixedSize(btnSize, btnSize)
         close_png = os.path.join(binDir, 'close-we.png')
-        self.btnClose.setIcon(QIcon(close_png))
+        set_title_button_icon(self.btnClose, close_png, QStyle.SP_TitleBarCloseButton, 'Close')
         self.btnClose.clicked.connect(self.close)
         # 最大化按钮
         self.btnMaximize = QToolButton()
         self.btnMaximize.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.btnMaximize.setFixedSize(btnSize, btnSize)
         max_png = os.path.join(binDir, 'max-we.png')
-        self.btnMaximize.setIcon(QIcon(max_png))
+        set_title_button_icon(self.btnMaximize, max_png, QStyle.SP_TitleBarMaxButton, 'Maximize')
         self.btnMaximize.clicked.connect(self.onButtonMaximizeClicked)
         # 最小化按钮
         self.btnMinimize = QToolButton()
         self.btnMinimize.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.btnMinimize.setFixedSize(btnSize, btnSize)
         min_png = os.path.join(binDir, 'min-we.png')
-        self.btnMinimize.setIcon(QIcon(min_png))
+        set_title_button_icon(self.btnMinimize, min_png, QStyle.SP_TitleBarMinButton, 'Minimize')
         self.btnMinimize.clicked.connect(lambda: self.setWindowState(Qt.WindowMinimized))
         # 恢复按钮
         self.btnRestore = QToolButton()
         self.btnRestore.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.btnRestore.setFixedSize(btnSize, btnSize)
         restore_png = os.path.join(binDir, 'restore-we.png')
-        self.btnRestore.setIcon(QIcon(restore_png))
+        set_title_button_icon(self.btnRestore, restore_png, QStyle.SP_TitleBarNormalButton, 'Restore')
         self.btnRestore.clicked.connect(self.onButtonRestoreClicked)
 
         # 做边留空

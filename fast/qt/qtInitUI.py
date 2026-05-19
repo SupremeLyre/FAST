@@ -27,7 +27,6 @@ def init_main_tabs(main_win, font, chinese, downloadLayout, qcLayout, sppLayout,
     downloadFrame = QWidget()
     downloadFrame.setFont(font)
     downloadFrame.setLayout(downloadLayout)
-    main_win.setCentralWidget(downloadFrame)
     if chinese:
         tab_widget.addTab(downloadFrame, "数据下载")
     else:
@@ -64,4 +63,3 @@ def init_main_tabs(main_win, font, chinese, downloadLayout, qcLayout, sppLayout,
 
     main_layout.addWidget(tab_widget, stretch=1)
     main_win.setCentralWidget(main_widget)
-    main_win.show()

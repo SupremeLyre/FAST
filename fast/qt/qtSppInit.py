@@ -160,7 +160,7 @@ def init_spp_ui(main_win, font, chinese, choose_h):
     sppAllLayout.addWidget(sppRight)
     sppAllLayout.setStretchFactor(1, 3)
 
-    sppLayout = QHBoxLayout(main_win)
+    sppLayout = QHBoxLayout()
     sppLayout.addWidget(sppAllLayout)
     
     return sppLayout

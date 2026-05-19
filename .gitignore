@@ -39,5 +39,6 @@ fast/dist
 FAST_M.html
 FAST_M2.html
 AGENTS.md
-mac_bin/
 win_bin/
+/dist/
+/build/

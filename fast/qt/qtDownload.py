@@ -11,6 +11,7 @@ from PyQt5.QtCore import Qt, QDateTime, QSize, QThread, pyqtSignal
 import subprocess
 import os
 import psutil
+import shlex
 from os.path import expanduser
 from PyQt5.QtGui import QFont, QPixmap
 from fast.com.pub import gnss_type, yd_type, ym_type, yds_type, s_type, ydsh_type, ydh_type
@@ -18,6 +19,60 @@ from PyQt5.QtWidgets import QGridLayout, QComboBox, QFileDialog
 from qbstyles import mpl_style
 import time
 import sys
+
+
+def _is_runnable(path):
+    if not os.path.isfile(path):
+        return False
+    if sys.platform == 'win32':
+        return True
+    return os.access(path, os.X_OK)
+
+
+def _fast_command_base(exe_dir_name):
+    if getattr(sys, 'frozen', False):
+        return [sys.executable]
+
+    source_cli = os.path.join(exe_dir_name, '_fast.py')
+    if os.path.isfile(source_cli):
+        return [sys.executable, source_cli]
+
+    if sys.platform == 'win32':
+        candidates = [
+            os.path.join(exe_dir_name, 'win_bin', 'FAST.exe'),
+            os.path.join(exe_dir_name, 'win_bin', 'FAST'),
+            os.path.join(exe_dir_name, 'FAST.exe'),
+            os.path.join(exe_dir_name, 'FAST'),
+        ]
+    elif sys.platform == 'darwin':
+        candidates = [
+            os.path.join(exe_dir_name, 'mac_bin', 'FAST'),
+            os.path.join(exe_dir_name, 'FAST'),
+        ]
+    else:
+        candidates = [
+            os.path.join(exe_dir_name, 'FAST'),
+            os.path.join(exe_dir_name, 'dist', 'FAST', 'FAST'),
+            os.path.join(exe_dir_name, 'mac_bin', 'FAST'),
+        ]
+
+    for candidate in candidates:
+        if _is_runnable(candidate):
+            return [candidate]
+    return None
+
+
+def _format_cmd(command):
+    return shlex.join(str(part) for part in command)
+
+
+def _decode_process_line(raw_line):
+    for encoding in ('utf-8', 'gbk'):
+        try:
+            return raw_line.decode(encoding)
+        except UnicodeDecodeError:
+            continue
+    return raw_line.decode('utf-8', errors='replace')
 
 
 class Worker(QThread):
@@ -35,29 +90,42 @@ class Worker(QThread):
                 st.wShowWindow = subprocess.SW_HIDE
             else:
                 st = None
-            self.p = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                      startupinfo=st)
-            PID = self.p.pid
-            while self.p.poll() is None:
+            env = os.environ.copy()
+            env.setdefault('PYTHONIOENCODING', 'utf-8')
+            try:
+                self.p = subprocess.Popen(cmd, shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                          startupinfo=st, env=env)
+            except (FileNotFoundError, PermissionError, OSError) as exc:
+                if self.mainSelf.chinese:
+                    self.sig.emit(self.mainSelf, 'FAST 启动失败 -> ' + str(exc))
+                else:
+                    self.sig.emit(self.mainSelf, 'Failed to start FAST -> ' + str(exc))
+                return
+
+            while True:
                 line = self.p.stdout.readline()
+                if not line and self.p.poll() is not None:
+                    break
                 line = line.strip()
                 if line:
-                    try:
-                        line = line.decode('gbk')
-                    except UnicodeDecodeError:
-                        line = line.decode('utf-8', errors='ignore')
+                    line = _decode_process_line(line)
                     if 'Windows' not in line and 'wget' not in line and 'done' not in line and 'listing' not in line and 'required' not in line \
                             and '正在下载文件' not in line and '正在开始下载' not in line and len(
                         line.replace(' ',
                                      '')) != 0 and 'gzip' not in line and 'No such file or directory' not in line and \
                             '! Notice ! splicing RINEX files' not in line:
                         self.sig.emit(self.mainSelf,line)
-                if PID == 0:
-                    if self.mainSelf.chinese:
-                        self.sig.emit(self.mainSelf,'下载结束')
-                    else:
-                        self.sig.emit(self.mainSelf,'Download completed')
-                    break
+            return_code = self.p.wait()
+            if return_code == 0:
+                if self.mainSelf.chinese:
+                    self.sig.emit(self.mainSelf, '下载结束')
+                else:
+                    self.sig.emit(self.mainSelf, 'Download completed')
+            else:
+                if self.mainSelf.chinese:
+                    self.sig.emit(self.mainSelf, 'FAST 退出码 -> ' + str(return_code))
+                else:
+                    self.sig.emit(self.mainSelf, 'FAST exit code -> ' + str(return_code))
         else:
             mypid = os.getpid()
             for proc in psutil.process_iter():
@@ -180,12 +248,13 @@ def choose_site_file(self):
 
 def dd(self):
     global cmd
-    if os.path.isdir(os.path.join(self.exeDirName, 'win_bin')):
-        binDir = os.path.join(self.exeDirName, 'win_bin')
-    else:
-        binDir = os.path.join(self.exeDirName, 'mac_bin')
-    win_bin_fast = os.path.join(binDir, 'FAST')
-    cmd = win_bin_fast
+    cmd = _fast_command_base(self.exeDirName)
+    if cmd is None:
+        if self.chinese:
+            printLog(self, '未找到 FAST 命令行入口，请确认 _fast.py 或已编译的 FAST 可执行文件存在。')
+        else:
+            printLog(self, 'FAST command-line entry was not found. Please check _fast.py or the compiled FAST executable.')
+        return
     type_name = self.name_type_combo.currentText()
     pool_num = self.pool_combo.currentText()
     unzip_str = self.unzip_combo.currentText()
@@ -199,7 +268,7 @@ def dd(self):
         printLog(self,'Thread    -> ' + pool_num)
         printLog(self,'Unzip     -> ' + unzip_str)
 
-    cmd += ' -t ' + type_name
+    cmd.extend(['-t', type_name])
     if type_name in yd_type or type_name in yds_type or type_name in ym_type or type_name in ydsh_type or type_name in ydh_type:
         year = self.year_line.text()
         if year == '':
@@ -218,7 +287,7 @@ def dd(self):
             printLog(self,'下载年份 -> ' + year)
         else:
             printLog(self,'Year -> ' + year)
-        cmd += ' -y ' + year
+        cmd.extend(['-y', year])
 
     if type_name in yd_type or type_name in yds_type or type_name in ydsh_type or type_name in ydh_type:
         doy1 = self.begin_doy_line.text()
@@ -249,8 +318,8 @@ def dd(self):
         else:
             printLog(self,'Start Doy -> ' + doy1)
             printLog(self,'Stop  Doy -> ' + doy2)
-        cmd += ' -s ' + doy1
-        cmd += ' -e ' + doy2
+        cmd.extend(['-s', doy1])
+        cmd.extend(['-e', doy2])
 
     if type_name in yds_type or type_name in s_type or type_name in ydsh_type:
         site_file = self.site_file_line.text()
@@ -265,10 +334,10 @@ def dd(self):
                 printLog(self,'站点文件 -> ' + site_file)
             else:
                 printLog(self,'Site inf. file -> ' + site_file)
-            cmd += ' -f ' + site_file
+            cmd.extend(['-f', site_file])
         else:
             site_name = str(site_file).replace(' ', ',')
-            cmd += ' -site ' + site_name
+            cmd.extend(['-site', site_name])
 
     if type_name in ym_type:
         month = self.month_line.text()
@@ -298,7 +367,7 @@ def dd(self):
             printLog(self,'Data Type -> ' + type_name)
             printLog(self,'Month -> ' + month)
 
-        cmd += ' -m ' + month
+        cmd.extend(['-m', month])
     if type_name in ydsh_type or type_name in ydh_type:
         hour = self.hour_combo.currentText()
         if hour != '0-23':
@@ -306,7 +375,7 @@ def dd(self):
                 printLog(self,'下载小时 -> ' + hour)
             else:
                 printLog(self,'Hour -> ' + hour)
-            cmd += ' -hour ' + hour
+            cmd.extend(['-hour', hour])
 
     loc = self.out_dir_line.text()
     if loc != '' and not os.path.isdir(loc):
@@ -320,21 +389,18 @@ def dd(self):
             printLog(self,'下载路径 -> ' + loc)
         else:
             printLog(self,'Download path -> ' + loc)
-        cmd += ' -l ' + loc
+        cmd.extend(['-l', loc])
     else:
-        cmd += ' -l ' + self.exeDirName
-    cmd += ' -p ' + pool_num
+        cmd.extend(['-l', self.exeDirName])
+    cmd.extend(['-p', pool_num])
 
     if unzip_str == '否' or unzip_str == 'no' :
-        cmd += ' -u N'
+        cmd.extend(['-u', 'N'])
 
     if len(proname) > 0:
-        cmd += ' -r ' + proname
+        cmd.extend(['-r', proname])
 
-    print(cmd)
-    
-    if sys.platform != 'win32':
-        cmd = cmd.split()
+    print(_format_cmd(cmd))
     printLog(self,'########################FAST########################')
     if self.chinese:
         printLog(self,'开始下载！')

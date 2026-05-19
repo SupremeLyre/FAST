@@ -17,7 +17,7 @@ from PyQt5.QtCore import QObject, pyqtSignal
 from fast.plot.plotSite import plotSite
 from fast.com.readSiteinfo import readSiteInf, readIgsSiteList
 from fast.site.thinning import thinning
-from fast.com.mgexSite import readMegxSiteInf
+from fast.com.mgexSite import findIgsNetworkCsv, readMegxSiteInf
 from fast.com.pub import is_number
 from fast.com.writeSiteInf import writeSiteInf
 
@@ -35,12 +35,7 @@ class runSiteWorker(QObject):
         if not self.isSiteRunning:
             return
         
-        if os.path.isdir(os.path.join(self.mainSelf.exeDirName, 'win_bin', 'bin')):
-            binDir = os.path.join(self.mainSelf.exeDirName, 'win_bin', 'bin')
-        else:
-            binDir = os.path.join(self.mainSelf.exeDirName, 'mac_bin', 'bin')
-
-        igsFileCsv = os.path.join(binDir, 'IGSNetwork.csv')
+        igsFileCsv = findIgsNetworkCsv(self.mainSelf.exeDirName)
         megxSiteList = readMegxSiteInf(igsFileCsv)
         siteFile = self.mainSelf.siteFileChoose.text()
         
